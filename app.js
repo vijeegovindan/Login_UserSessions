@@ -25,8 +25,9 @@ app.use(session({
 }));
 
 let messages = [];
-var jsonfile = require('jsonfile');
-var file = 'data.json';
+let login_users = [{"username":"user1","password":"password"},
+                {"username":"user2","password":"password"},
+                {"username":"user3","password":"password"}];
 
 app.get("/", function(req,res){
     if(req.session.username){
@@ -54,23 +55,19 @@ let flag = false;
 req.checkBody("username", "Please enter a valid username").notEmpty().isLength({max: 30});
 req.checkBody("password", "Please enter a Password").notEmpty();
 
-jsonfile.readFile(file, function(err, obj){
-  if(err) {
-    console.error("Error reading from Json file: "+ file);
-    console.error(err.stack);
-    process.exit(1);
-  }
-  obj.login_users.forEach(function(user){
+login_users.forEach(function(user){
   if (user.username === req.body.username) {
     loggedUser = user;
     flag = true;
   }
 });
+
 if(flag){
   req.checkBody("password", "Invalid password and username combination.").equals(loggedUser.password);
 }
 
 let errors = req.validationErrors();
+
 if (errors) {
   errors.forEach(function(error){
   messages.push(error.msg);
@@ -84,11 +81,12 @@ else{
     }
   else {
     res.render("login", {errors: "Invalid login. Enter valid credentials"});
-    }}
-  });
+    }
+  }
 });
 
 app.get("/login", function(req, res) {
+  console.log("I m here");
   res.render("login");
 });
 //Listen to app
